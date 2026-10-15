@@ -16,3 +16,5 @@ src/main/resources/application-local.yaml
 *.key
 *.p12
 *.jks
+__pycache__/
+*.py[cod]

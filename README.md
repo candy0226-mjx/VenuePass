@@ -4,6 +4,12 @@ VenuePass 是一个基于 Java 21 和 Spring Boot 3 的场馆预约与核销后�
 
 项目参考 JTicket 的业务模型，使用国内 Java 后端常见技术栈重新实现，覆盖场馆资源管理、活动场次管理、预约下单、模拟支付、核销凭证、超时关单、幂等控制等核心流程。当前仓库提供后端源码、数据库初始化脚本与接口文档，不包含前端页面。
 
+## 项目学习与面试资料
+
+[学习手册入口](docs/learning/README.md) 按实际源码整理项目结构、业务模型、事务、Redis/Lua/锁、缓存、安全、RabbitMQ、点评通知、Java/MySQL 基础和工程实验，并提供可增删改查的面试题库、官方参考与当前实现边界。
+
+直接阅读 [面试题集](docs/learning/interview-questions.md)，或使用 `python tools/study.py search "事务"` 搜索。修改资料后执行 `python tools/study.py check` 检查；该检查不替代业务测试。
+
 ## 技术栈
 
 | 模块 | 技术 |

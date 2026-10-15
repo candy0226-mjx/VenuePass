@@ -1,0 +1,12 @@
+{
+  "id": "Q073",
+  "topic": "我的补充",
+  "priority": "P1",
+  "question": "我需要继续研究的项目问题是什么？",
+  "answer": "填写自己的解释，明确当前实现、失败时序、改进思路与验证结果。",
+  "followups": ["能定位到哪一个类和方法？", "如何通过实验验证？"],
+  "code_refs": ["src/main/java/com/jxbg/ticket/service/impl/ReservationOrderServiceImpl.java::createOrder"],
+  "source_ids": ["S01"],
+  "status": "todo",
+  "notes": "先换一个尚未使用的编号，再增加题目。"
+}
