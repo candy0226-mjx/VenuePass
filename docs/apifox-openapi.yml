@@ -1,0 +1,2000 @@
+openapi: 3.0.3
+info:
+  title: 场馆预约与核销系统
+  description: Ticket Boot 第一阶段 MVP 接口文档，可直接导入 Apifox。
+  version: 1.0.0
+servers:
+  - url: http://localhost:8081/api
+    description: 本地开发环境
+tags:
+  - name: 用户认证
+  - name: 场馆管理
+  - name: 区域管理
+  - name: 资源管理
+  - name: 活动管理
+  - name: 场次管理
+  - name: 价格管理
+  - name: 预约订单
+  - name: 支付管理
+  - name: 核销管理
+  - name: 工作台
+  - name: 数据导出
+  - name: 操作日志
+  - name: 点评管理
+  - name: 文件上传
+security:
+  - bearerAuth: []
+paths:
+  /auth/login:
+    post:
+      tags: [用户认证]
+      summary: 用户登录
+      operationId: login
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+            example:
+              username: user
+              password: '123456'
+      responses:
+        '200':
+          description: 登录成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+
+  /auth/me:
+    get:
+      tags: [用户认证]
+      summary: 当前用户
+      operationId: getCurrentUser
+      responses:
+        '200':
+          description: 查询成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+
+  /venues:
+    get:
+      tags: [场馆管理]
+      summary: 场馆列表
+      operationId: listVenues
+      responses:
+        '200':
+          description: 查询成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VenueListResponse'
+    post:
+      tags: [场馆管理]
+      summary: 新增场馆
+      operationId: createVenue
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Venue'
+            example:
+              name: 城市体育中心
+              address: 示例市人民路 100 号
+              description: 支持篮球场、羽毛球场和讲座活动预约
+              contactPhone: '010-88888888'
+              status: 1
+      responses:
+        '200':
+          description: 创建成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IdResponse'
+
+  /venues/{id}:
+    get:
+      tags: [场馆管理]
+      summary: 场馆详情
+      operationId: getVenue
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          description: 查询成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VenueResponse'
+    put:
+      tags: [场馆管理]
+      summary: 修改场馆
+      operationId: updateVenue
+      parameters:
+        - $ref: '#/components/parameters/id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Venue'
+      responses:
+        '200':
+          description: 修改成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+    delete:
+      tags: [场馆管理]
+      summary: 停用场馆
+      operationId: disableVenue
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          description: 停用成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+
+  /venues/hot:
+    get:
+      tags: [场馆管理]
+      summary: 热门场馆
+      operationId: listHotVenues
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+          description: 返回数量
+      responses:
+        '200':
+          description: 查询成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VenueHotListResponse'
+
+  /venues/history:
+    get:
+      tags: [场馆管理]
+      summary: 浏览记录
+      operationId: listVenueBrowseHistory
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+          description: 返回数量
+      responses:
+        '200':
+          description: 查询成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VenueBrowseHistoryListResponse'
+
+  /venues/{id}/reviews:
+    get:
+      tags: [点评管理]
+      summary: 场馆点评列表
+      operationId: listVenueReviews
+      parameters:
+        - $ref: '#/components/parameters/id'
+        - $ref: '#/components/parameters/pageNo'
+        - $ref: '#/components/parameters/pageSize'
+      responses:
+        '200':
+          description: 查询成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReviewListResponse'
+
+  /venues/{venueId}/areas:
+    get:
+      tags: [区域管理]
+      summary: 区域列表
+      operationId: listAreas
+      parameters:
+        - $ref: '#/components/parameters/venueId'
+      responses:
+        '200':
+          description: 查询成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AreaListResponse'
+    post:
+      tags: [区域管理]
+      summary: 新增区域
+      operationId: createArea
+      parameters:
+        - $ref: '#/components/parameters/venueId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VenueArea'
+            example:
+              name: 一层篮球区
+              type: COURT
+              capacity: 4
+              sort: 1
+              status: 1
+      responses:
+        '200':
+          description: 创建成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IdResponse'
+
+  /areas/{areaId}/seats:
+    get:
+      tags: [资源管理]
+      summary: 资源列表
+      operationId: listSeats
+      parameters:
+        - $ref: '#/components/parameters/areaId'
+      responses:
+        '200':
+          description: 查询成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SeatListResponse'
+    post:
+      tags: [资源管理]
+      summary: 新增资源
+      operationId: createSeat
+      parameters:
+        - $ref: '#/components/parameters/areaId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Seat'
+            example:
+              venueId: 1
+              seatNo: COURT-03
+              rowNo: null
+              colNo: null
+              name: 3 号篮球场
+              basePrice: 80.00
+              resourceType: COURT
+              status: 1
+      responses:
+        '200':
+          description: 创建成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IdResponse'
+
+  /activities:
+    get:
+      tags: [活动管理]
+      summary: 活动列表
+      operationId: listActivities
+      parameters:
+        - name: venueId
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int64
+          description: 场馆 ID
+      responses:
+        '200':
+          description: 查询成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActivityListResponse'
+    post:
+      tags: [活动管理]
+      summary: 新增活动
+      operationId: createActivity
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Activity'
+            example:
+              venueId: 1
+              name: 篮球场预约
+              description: 城市体育中心篮球场按时段预约
+              posterUrl: null
+              status: 1
+      responses:
+        '200':
+          description: 创建成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IdResponse'
+
+  /activities/{id}:
+    get:
+      tags: [活动管理]
+      summary: 活动详情
+      operationId: getActivity
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          description: 查询成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActivityResponse'
+    put:
+      tags: [活动管理]
+      summary: 修改活动
+      operationId: updateActivity
+      parameters:
+        - $ref: '#/components/parameters/id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Activity'
+      responses:
+        '200':
+          description: 修改成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+
+  /activities/{activityId}/sessions:
+    get:
+      tags: [场次管理]
+      summary: 场次列表
+      operationId: listSessions
+      parameters:
+        - $ref: '#/components/parameters/activityId'
+      responses:
+        '200':
+          description: 查询成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionListResponse'
+    post:
+      tags: [场次管理]
+      summary: 新增场次
+      operationId: createSession
+      parameters:
+        - $ref: '#/components/parameters/activityId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReserveSession'
+            example:
+              venueId: 1
+              name: 晚间篮球场 20:00-21:00
+              startTime: '2030-01-01T20:00:00'
+              endTime: '2030-01-01T21:00:00'
+              totalStock: 2
+              availableStock: 2
+              status: 1
+      responses:
+        '200':
+          description: 创建成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IdResponse'
+
+  /price-rules:
+    get:
+      tags: [价格管理]
+      summary: 价格列表
+      operationId: listPriceRules
+      parameters:
+        - name: activityId
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int64
+          description: 活动 ID
+      responses:
+        '200':
+          description: 查询成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PriceRuleListResponse'
+    post:
+      tags: [价格管理]
+      summary: 新增价格
+      operationId: createPriceRule
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PriceRule'
+            example:
+              activityId: 1
+              sessionId: 1
+              areaId: 1
+              price: 80.00
+              status: 1
+      responses:
+        '200':
+          description: 创建成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IdResponse'
+
+  /sessions/{sessionId}/seats:
+    get:
+      tags: [预约订单]
+      summary: 可约资源
+      operationId: listSessionSeats
+      parameters:
+        - $ref: '#/components/parameters/sessionId'
+      responses:
+        '200':
+          description: 查询成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SeatAvailabilityListResponse'
+
+  /orders:
+    get:
+      tags: [预约订单]
+      summary: 订单列表
+      operationId: listOrders
+      parameters:
+        - name: userId
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int64
+          description: 用户 ID
+        - $ref: '#/components/parameters/pageNo'
+        - $ref: '#/components/parameters/pageSize'
+      responses:
+        '200':
+          description: 查询成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderListResponse'
+    post:
+      tags: [预约订单]
+      summary: 创建订单
+      operationId: createOrder
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOrderRequest'
+            example:
+              userId: 2
+              sessionId: 1
+              seatIds: [1]
+              submitToken: 2ffbe80179c04da2b7b9e5d8f7c32755
+      responses:
+        '200':
+          description: 创建成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IdResponse'
+
+  /orders/submit-token:
+    get:
+      tags: [预约订单]
+      summary: 获取下单令牌
+      description: 创建订单前先获取下单令牌，创建订单时传入 submitToken。令牌只能使用一次，用于防止重复提交。
+      operationId: generateSubmitToken
+      responses:
+        '200':
+          description: 获取成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubmitTokenResponse'
+
+  /orders/timeout/close:
+    post:
+      tags: [预约订单]
+      summary: 手动关闭超时订单
+      description: 开发和演示用接口，立即扫描并关闭已超时未支付订单，释放资源并恢复场次库存。
+      operationId: closeTimeoutOrders
+      parameters:
+        - name: batchSize
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 50
+            maximum: 200
+          description: 本次最多处理的订单数量
+      responses:
+        '200':
+          description: 处理成功，data 为本次关闭的订单数量
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CountResponse'
+
+  /orders/{id}:
+    get:
+      tags: [预约订单]
+      summary: 订单详情
+      operationId: getOrder
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          description: 查询成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderDetailResponse'
+
+  /orders/{id}/cancel:
+    post:
+      tags: [预约订单]
+      summary: 取消订单
+      operationId: cancelOrder
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          description: 取消成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+
+  /orders/{id}/pay:
+    post:
+      tags: [预约订单]
+      summary: 模拟支付
+      description: 首次支付会将订单改为 PAID，写入支付流水，并生成核销码；重复支付已支付订单会直接返回已有核销码，不重复写支付流水。
+      operationId: payOrder
+      parameters:
+        - $ref: '#/components/parameters/id'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PayOrderRequest'
+            example:
+              paymentNo: TEST_PAY_001
+      responses:
+        '200':
+          description: 支付成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CheckinCodeResponse'
+
+  /payments:
+    get:
+      tags: [支付管理]
+      summary: 支付流水
+      operationId: listPaymentRecords
+      parameters:
+        - name: orderId
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int64
+          description: 订单 ID
+        - $ref: '#/components/parameters/pageNo'
+        - $ref: '#/components/parameters/pageSize'
+      responses:
+        '200':
+          description: 查询成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentRecordListResponse'
+
+  /orders/{orderId}/checkin-code:
+    get:
+      tags: [核销管理]
+      summary: 查询核销码
+      operationId: getCheckinCode
+      parameters:
+        - $ref: '#/components/parameters/orderId'
+      responses:
+        '200':
+          description: 查询成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CheckinCodeResponse'
+
+  /checkin/verify:
+    post:
+      tags: [核销管理]
+      summary: 核销预约码
+      description: 首次核销会将核销码改为 USED；重复核销已使用核销码会返回“该预约已核销”，不会重复写成功记录。
+      operationId: verifyCheckinCode
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CheckinVerifyRequest'
+            example:
+              code: 替换为支付接口返回的核销码
+              checkerId: 3
+      responses:
+        '200':
+          description: 核销成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+
+  /checkin/records:
+    get:
+      tags: [核销管理]
+      summary: 核销记录
+      operationId: listCheckinRecords
+      parameters:
+        - name: orderId
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int64
+          description: 订单 ID
+        - $ref: '#/components/parameters/pageNo'
+        - $ref: '#/components/parameters/pageSize'
+      responses:
+        '200':
+          description: 查询成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CheckinRecordListResponse'
+
+  /operation-logs:
+    get:
+      tags: [操作日志]
+      summary: 操作日志
+      operationId: listOperationLogs
+      parameters:
+        - name: businessType
+          in: query
+          required: false
+          schema:
+            type: string
+          description: 业务类型，例如 ORDER
+        - name: businessId
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int64
+          description: 业务 ID，例如订单 ID
+        - name: operatorId
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int64
+          description: 操作人 ID
+        - $ref: '#/components/parameters/pageNo'
+        - $ref: '#/components/parameters/pageSize'
+      responses:
+        '200':
+          description: 查询成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationLogListResponse'
+
+  /dashboard/summary:
+    get:
+      tags: [工作台]
+      summary: 统计概览
+      operationId: getDashboardSummary
+      responses:
+        '200':
+          description: 查询成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardSummaryResponse'
+
+  /export/my-orders:
+    get:
+      tags: [数据导出]
+      summary: 导出我的订单
+      description: 导出当前登录用户自己的订单，最多导出 5000 条。可通过 status 筛选订单状态。
+      operationId: exportMyOrders
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [PENDING, PAID, CANCELLED, CHECKED_IN]
+          description: 订单状态
+      responses:
+        '200':
+          description: 导出成功，返回 xlsx 文件
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+
+  /reviews:
+    post:
+      tags: [点评管理]
+      summary: 发布点评
+      operationId: createReview
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateReviewRequest'
+            example:
+              orderId: 18
+              rating: 5
+              content: 场馆体验不错，下次还会预约。
+              imageUrls:
+                - http://localhost/images/review-1.jpg
+                - http://localhost/images/review-2.jpg
+      responses:
+        '200':
+          description: 发布成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IdResponse'
+
+  /reviews/my:
+    get:
+      tags: [点评管理]
+      summary: 我的点评
+      operationId: listMyReviews
+      parameters:
+        - name: pageNo
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1
+          description: 页码
+        - name: pageSize
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+          description: 每页数量
+      responses:
+        '200':
+          description: 查询成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReviewListResponse'
+
+  /reviews/pending:
+    get:
+      tags: [点评管理]
+      summary: 待审核点评
+      operationId: listPendingReviews
+      parameters:
+        - name: pageNo
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1
+          description: 页码
+        - name: pageSize
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+          description: 每页数量
+      responses:
+        '200':
+          description: 查询成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReviewListResponse'
+
+  /reviews/{id}:
+    get:
+      tags: [点评管理]
+      summary: 点评详情
+      operationId: getReview
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          description: 查询成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReviewResponse'
+    delete:
+      tags: [点评管理]
+      summary: 删除点评
+      operationId: deleteReview
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          description: 删除成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+
+  /reviews/{id}/approve:
+    post:
+      tags: [点评管理]
+      summary: 通过点评
+      operationId: approveReview
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          description: 审核通过
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+
+  /reviews/{id}/reject:
+    post:
+      tags: [点评管理]
+      summary: 驳回点评
+      operationId: rejectReview
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          description: 审核驳回
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+
+  /reviews/{id}/like:
+    post:
+      tags: [点评管理]
+      summary: 点赞点评
+      operationId: likeReview
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          description: 点赞成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+    delete:
+      tags: [点评管理]
+      summary: 取消点赞
+      operationId: cancelLikeReview
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          description: 取消成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+
+  /uploads/review-images:
+    post:
+      tags: [文件上传]
+      summary: 上传点评图片
+      operationId: uploadReviewImage
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: 图片文件，支持 jpg、jpeg、png、gif、webp，最大 5MB
+      responses:
+        '200':
+          description: 上传成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileUploadResponse'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  parameters:
+    id:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+      description: 主键 ID
+    venueId:
+      name: venueId
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+      description: 场馆 ID
+    areaId:
+      name: areaId
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+      description: 区域 ID
+    activityId:
+      name: activityId
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+      description: 活动 ID
+    sessionId:
+      name: sessionId
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+      description: 场次 ID
+    orderId:
+      name: orderId
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+      description: 订单 ID
+    pageNo:
+      name: pageNo
+      in: query
+      required: false
+      schema:
+        type: integer
+        format: int64
+        default: 1
+        minimum: 1
+      description: 页码，从 1 开始
+    pageSize:
+      name: pageSize
+      in: query
+      required: false
+      schema:
+        type: integer
+        format: int64
+        default: 10
+        minimum: 1
+        maximum: 100
+      description: 每页条数，最大 100
+  schemas:
+    ApiResult:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: success
+        data:
+          nullable: true
+    EmptyResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResult'
+    IdResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: success
+        data:
+          type: integer
+          format: int64
+          nullable: true
+          example: 1
+    CountResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: success
+        data:
+          type: integer
+          nullable: true
+          description: 处理数量
+          example: 1
+    SubmitTokenVO:
+      type: object
+      properties:
+        submitToken:
+          type: string
+          description: 下单令牌，创建订单时传入
+          example: 2ffbe80179c04da2b7b9e5d8f7c32755
+        expireSeconds:
+          type: integer
+          format: int64
+          description: 令牌有效期，单位秒
+          example: 600
+    SubmitTokenResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: success
+        data:
+          nullable: true
+          $ref: '#/components/schemas/SubmitTokenVO'
+    LoginRequest:
+      type: object
+      required: [username, password]
+      properties:
+        username:
+          type: string
+          description: 用户名
+          example: user
+        password:
+          type: string
+          description: 密码
+          example: '123456'
+    LoginVO:
+      type: object
+      properties:
+        userId:
+          type: integer
+          format: int64
+          example: 2
+        username:
+          type: string
+          example: user
+        nickname:
+          type: string
+          example: 普通用户
+        role:
+          type: string
+          example: USER
+        token:
+          type: string
+          example: eyJhbGciOiJIUzI1NiJ9.xxx
+    LoginResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: success
+        data:
+          nullable: true
+          $ref: '#/components/schemas/LoginVO'
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        username:
+          type: string
+        nickname:
+          type: string
+        phone:
+          type: string
+        role:
+          type: string
+          enum: [ADMIN, USER, CHECKER]
+        status:
+          type: integer
+    UserResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: success
+        data:
+          nullable: true
+          $ref: '#/components/schemas/User'
+    DashboardSummary:
+      type: object
+      properties:
+        todayOrderCount:
+          type: integer
+          format: int64
+          description: 今日订单数
+          example: 12
+        todayPaidOrderCount:
+          type: integer
+          format: int64
+          description: 今日支付订单数
+          example: 8
+        todayPaidAmount:
+          type: number
+          description: 今日支付金额
+          example: 640.00
+        todayCheckinCount:
+          type: integer
+          format: int64
+          description: 今日核销数
+          example: 5
+        pendingOrderCount:
+          type: integer
+          format: int64
+          description: 待支付订单数
+          example: 3
+        totalOrderCount:
+          type: integer
+          format: int64
+          description: 订单总数
+          example: 128
+        totalVenueCount:
+          type: integer
+          format: int64
+          description: 启用场馆数
+          example: 2
+        totalResourceCount:
+          type: integer
+          format: int64
+          description: 启用资源数
+          example: 36
+    DashboardSummaryResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: success
+        data:
+          $ref: '#/components/schemas/DashboardSummary'
+    Venue:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        address:
+          type: string
+        description:
+          type: string
+        contactPhone:
+          type: string
+        status:
+          type: integer
+    VenueResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: success
+        data:
+          nullable: true
+          $ref: '#/components/schemas/Venue'
+    VenueListResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: success
+        data:
+          type: array
+          nullable: true
+          items:
+            $ref: '#/components/schemas/Venue'
+    VenueHotVO:
+      type: object
+      properties:
+        venueId:
+          type: integer
+          format: int64
+        name:
+          type: string
+        address:
+          type: string
+        description:
+          type: string
+        contactPhone:
+          type: string
+        status:
+          type: integer
+        viewCount:
+          type: integer
+          format: int64
+          description: 浏览次数
+    VenueHotListResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: success
+        data:
+          type: array
+          nullable: true
+          items:
+            $ref: '#/components/schemas/VenueHotVO'
+    VenueBrowseHistoryVO:
+      type: object
+      properties:
+        venueId:
+          type: integer
+          format: int64
+        name:
+          type: string
+        address:
+          type: string
+        browseTime:
+          type: string
+          format: date-time
+          description: 最近浏览时间
+    VenueBrowseHistoryListResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: success
+        data:
+          type: array
+          nullable: true
+          items:
+            $ref: '#/components/schemas/VenueBrowseHistoryVO'
+    VenueArea:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        venueId:
+          type: integer
+          format: int64
+        name:
+          type: string
+        type:
+          type: string
+          enum: [SEAT, COURT, ROOM]
+        capacity:
+          type: integer
+        sort:
+          type: integer
+        status:
+          type: integer
+    AreaListResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: success
+        data:
+          type: array
+          nullable: true
+          items:
+            $ref: '#/components/schemas/VenueArea'
+    Seat:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        venueId:
+          type: integer
+          format: int64
+        areaId:
+          type: integer
+          format: int64
+        seatNo:
+          type: string
+        rowNo:
+          type: string
+          nullable: true
+        colNo:
+          type: string
+          nullable: true
+        name:
+          type: string
+        basePrice:
+          type: number
+          format: double
+        resourceType:
+          type: string
+          enum: [SEAT, COURT, ROOM]
+        status:
+          type: integer
+    SeatListResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: success
+        data:
+          type: array
+          nullable: true
+          items:
+            $ref: '#/components/schemas/Seat'
+    Activity:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        venueId:
+          type: integer
+          format: int64
+        name:
+          type: string
+        description:
+          type: string
+        posterUrl:
+          type: string
+          nullable: true
+        status:
+          type: integer
+    ActivityResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: success
+        data:
+          nullable: true
+          $ref: '#/components/schemas/Activity'
+    ActivityListResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: success
+        data:
+          type: array
+          nullable: true
+          items:
+            $ref: '#/components/schemas/Activity'
+    ReserveSession:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        activityId:
+          type: integer
+          format: int64
+        venueId:
+          type: integer
+          format: int64
+        name:
+          type: string
+        startTime:
+          type: string
+          format: date-time
+        endTime:
+          type: string
+          format: date-time
+        totalStock:
+          type: integer
+        availableStock:
+          type: integer
+        status:
+          type: integer
+    SessionListResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: success
+        data:
+          type: array
+          nullable: true
+          items:
+            $ref: '#/components/schemas/ReserveSession'
+    PriceRule:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        activityId:
+          type: integer
+          format: int64
+        sessionId:
+          type: integer
+          format: int64
+          nullable: true
+        areaId:
+          type: integer
+          format: int64
+          nullable: true
+        price:
+          type: number
+          format: double
+        status:
+          type: integer
+    PriceRuleListResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: success
+        data:
+          type: array
+          nullable: true
+          items:
+            $ref: '#/components/schemas/PriceRule'
+    SeatAvailabilityVO:
+      type: object
+      properties:
+        seatId:
+          type: integer
+          format: int64
+        seatNo:
+          type: string
+        name:
+          type: string
+        price:
+          type: number
+          format: double
+        available:
+          type: boolean
+    SeatAvailabilityListResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: success
+        data:
+          type: array
+          nullable: true
+          items:
+            $ref: '#/components/schemas/SeatAvailabilityVO'
+    CreateOrderRequest:
+      type: object
+      required: [userId, sessionId, seatIds, submitToken]
+      properties:
+        userId:
+          type: integer
+          format: int64
+          description: 下单用户 ID
+          example: 2
+        sessionId:
+          type: integer
+          format: int64
+          description: 场次 ID
+          example: 1
+        seatIds:
+          type: array
+          description: 座位/资源 ID 列表
+          items:
+            type: integer
+            format: int64
+          example: [1]
+        submitToken:
+          type: string
+          description: 下单令牌，通过“获取下单令牌”接口获取，只能使用一次
+          example: 2ffbe80179c04da2b7b9e5d8f7c32755
+    PayOrderRequest:
+      type: object
+      properties:
+        paymentNo:
+          type: string
+          description: 模拟支付流水号
+          example: TEST_PAY_001
+    ReservationOrder:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        orderNo:
+          type: string
+        userId:
+          type: integer
+          format: int64
+        activityId:
+          type: integer
+          format: int64
+        sessionId:
+          type: integer
+          format: int64
+        totalAmount:
+          type: number
+          format: double
+        status:
+          type: string
+          enum: [PENDING, PAID, CANCELLED, CHECKED_IN]
+        expireTime:
+          type: string
+          format: date-time
+        paidAt:
+          type: string
+          format: date-time
+          nullable: true
+        cancelledAt:
+          type: string
+          format: date-time
+          nullable: true
+    PaymentRecord:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        orderId:
+          type: integer
+          format: int64
+        orderNo:
+          type: string
+        paymentNo:
+          type: string
+        amount:
+          type: number
+          format: double
+        status:
+          type: string
+          enum: [SUCCESS, FAILED]
+        paidAt:
+          type: string
+          format: date-time
+    PaymentRecordListResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: success
+        data:
+          nullable: true
+          $ref: '#/components/schemas/PaymentRecordPage'
+    OrderListResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: success
+        data:
+          nullable: true
+          $ref: '#/components/schemas/ReservationOrderPage'
+    OrderItemVO:
+      type: object
+      properties:
+        seatId:
+          type: integer
+          format: int64
+        seatNo:
+          type: string
+        price:
+          type: number
+          format: double
+    OrderDetailVO:
+      allOf:
+        - $ref: '#/components/schemas/ReservationOrder'
+        - type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/OrderItemVO'
+    OrderDetailResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: success
+        data:
+          nullable: true
+          $ref: '#/components/schemas/OrderDetailVO'
+    CheckinCodeVO:
+      type: object
+      properties:
+        orderId:
+          type: integer
+          format: int64
+        code:
+          type: string
+        status:
+          type: string
+          enum: [VALID, USED, EXPIRED]
+        expiredAt:
+          type: string
+          format: date-time
+    CheckinCodeResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: success
+        data:
+          nullable: true
+          $ref: '#/components/schemas/CheckinCodeVO'
+    CheckinVerifyRequest:
+      type: object
+      required: [code, checkerId]
+      properties:
+        code:
+          type: string
+          description: 核销码
+        checkerId:
+          type: integer
+          format: int64
+          description: 核销员 ID
+          example: 3
+    CheckinRecord:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        codeId:
+          type: integer
+          format: int64
+        orderId:
+          type: integer
+          format: int64
+        checkerId:
+          type: integer
+          format: int64
+        result:
+          type: string
+          enum: [SUCCESS, FAILED]
+        message:
+          type: string
+    CheckinRecordListResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: success
+        data:
+          nullable: true
+          $ref: '#/components/schemas/CheckinRecordPage'
+    OperationLog:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        operatorId:
+          type: integer
+          format: int64
+          nullable: true
+        operatorRole:
+          type: string
+          example: USER
+        operationType:
+          type: string
+          enum: [CREATE_ORDER, PAY_ORDER, CANCEL_ORDER, TIMEOUT_CLOSE_ORDER, CHECKIN_ORDER]
+        businessType:
+          type: string
+          example: ORDER
+        businessId:
+          type: integer
+          format: int64
+          nullable: true
+        content:
+          type: string
+          example: 用户创建预约订单
+        result:
+          type: string
+          enum: [SUCCESS, FAILED]
+        createTime:
+          type: string
+          format: date-time
+    OperationLogListResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: success
+        data:
+          nullable: true
+          $ref: '#/components/schemas/OperationLogPage'
+    ReservationOrderPage:
+      allOf:
+        - $ref: '#/components/schemas/PageResult'
+        - type: object
+          properties:
+            records:
+              type: array
+              items:
+                $ref: '#/components/schemas/ReservationOrder'
+    PaymentRecordPage:
+      allOf:
+        - $ref: '#/components/schemas/PageResult'
+        - type: object
+          properties:
+            records:
+              type: array
+              items:
+                $ref: '#/components/schemas/PaymentRecord'
+    CheckinRecordPage:
+      allOf:
+        - $ref: '#/components/schemas/PageResult'
+        - type: object
+          properties:
+            records:
+              type: array
+              items:
+                $ref: '#/components/schemas/CheckinRecord'
+    OperationLogPage:
+      allOf:
+        - $ref: '#/components/schemas/PageResult'
+        - type: object
+          properties:
+            records:
+              type: array
+              items:
+                $ref: '#/components/schemas/OperationLog'
+    CreateReviewRequest:
+      type: object
+      required: [orderId, rating, content]
+      properties:
+        orderId:
+          type: integer
+          format: int64
+          description: 已核销完成的订单 ID
+          example: 18
+        rating:
+          type: integer
+          minimum: 0
+          maximum: 5
+          description: 评分，0-5 分
+          example: 5
+        content:
+          type: string
+          maxLength: 1000
+          description: 点评内容
+          example: 场馆体验不错，下次还会预约。
+        imageUrls:
+          type: array
+          maxItems: 9
+          description: 点评图片地址，最多 9 张
+          items:
+            type: string
+    ReviewVO:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        userId:
+          type: integer
+          format: int64
+        username:
+          type: string
+        nickname:
+          type: string
+        orderId:
+          type: integer
+          format: int64
+        venueId:
+          type: integer
+          format: int64
+        activityId:
+          type: integer
+          format: int64
+        sessionId:
+          type: integer
+          format: int64
+        rating:
+          type: integer
+          minimum: 0
+          maximum: 5
+        content:
+          type: string
+        status:
+          type: integer
+          description: 点评状态：0隐藏 1已通过 2待审核 3已驳回
+        statusName:
+          type: string
+          description: 点评状态名称
+        likeCount:
+          type: integer
+        imageCount:
+          type: integer
+        imageUrls:
+          type: array
+          items:
+            type: string
+        createTime:
+          type: string
+          format: date-time
+    ReviewResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: success
+        data:
+          nullable: true
+          $ref: '#/components/schemas/ReviewVO'
+    ReviewListResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: success
+        data:
+          nullable: true
+          $ref: '#/components/schemas/ReviewPage'
+    ReviewPage:
+      allOf:
+        - $ref: '#/components/schemas/PageResult'
+        - type: object
+          properties:
+            records:
+              type: array
+              items:
+                $ref: '#/components/schemas/ReviewVO'
+    FileUploadVO:
+      type: object
+      properties:
+        fileName:
+          type: string
+          example: 4b1362cddcac427492c60a50be03d58d.png
+        url:
+          type: string
+          description: 图片访问路径，完整访问地址为接口前置 URL + 该路径
+          example: /review-images/2026/08/29/4b1362cddcac427492c60a50be03d58d.png
+        size:
+          type: integer
+          format: int64
+          example: 68
+    FileUploadResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: success
+        data:
+          nullable: true
+          $ref: '#/components/schemas/FileUploadVO'
+    PageResult:
+      type: object
+      properties:
+        records:
+          type: array
+          items:
+            type: object
+        total:
+          type: integer
+          format: int64
+          description: 总记录数
+          example: 100
+        pageNo:
+          type: integer
+          format: int64
+          description: 当前页码
+          example: 1
+        pageSize:
+          type: integer
+          format: int64
+          description: 每页条数
+          example: 10

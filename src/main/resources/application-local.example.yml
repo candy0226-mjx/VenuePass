@@ -1,0 +1,26 @@
+# Copy to application-local.yml and configure your local services.
+# application-local.yml is ignored by Git.
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/ticket_boot?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:change-me}
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      database: 0
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: ${RABBITMQ_USERNAME:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
+
+jwt:
+  # Development example only. Set JWT_SECRET to a random value before deployment.
+  secret: ${JWT_SECRET:replace-this-development-only-secret-before-deployment}
+
+ticket:
+  mq:
+    order-timeout:
+      enabled: false
