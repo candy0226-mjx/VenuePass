@@ -51,6 +51,22 @@ class StudyStoreTests(unittest.TestCase):
         self.assertEqual(len(self.store.load()["questions"]), 1)
         self.assertEqual(len(list((self.root / "dist" / "learning-backups").glob("*.json"))), 3)
 
+    def test_dialogue_round_trip_preserves_notes_and_followup_paragraphs(self):
+        followup = "如果回调失败呢？\n\n**我：** 数据库提交不会被撤销。\n\n需要单独补偿。"
+        self.store.update("Q001", {
+            "followups": [followup], "status": "learning", "notes": "保留自己的推演",
+        })
+        self.store.export()
+        self.store.check()
+        card = self.store.find(self.store.load(), "Q001")
+        self.assertEqual(card["followups"], [followup])
+        self.assertEqual(card["status"], "learning")
+        self.assertEqual(card["notes"], "保留自己的推演")
+        rendered = self.store.output.read_text(encoding="utf-8")
+        self.assertIn("**面试官：** 为什么？", rendered)
+        self.assertIn("**面试官追问 1：** " + followup, rendered)
+        self.assertNotIn("- " + followup, rendered)
+
     def test_duplicate_add_does_not_change_bank(self):
         before = self.bank.read_bytes()
         with self.assertRaisesRegex(ValueError, "Duplicate"):

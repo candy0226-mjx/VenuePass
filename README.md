@@ -10,6 +10,8 @@ VenuePass 是一个基于 Java 21 和 Spring Boot 3 的场馆预约与核销后�
 
 直接阅读 [面试题集](docs/learning/interview-questions.md)，或使用 `python tools/study.py search "事务"` 搜索。修改资料后执行 `python tools/study.py check` 检查；该检查不替代业务测试。
 
+题集已整理为 72 道主问答与 144 个完整追问的口语练习形式。基础复习可读 [Java 八股问答](docs/learning/java-interview.md)，包含 48 道与项目相关的 Java、集合、并发、JVM、Spring 和工程问题；版本边界与纠错记录见 [问答修订说明](docs/learning/interview-revision-notes.md)。
+
 ## 技术栈
 
 | 模块 | 技术 |

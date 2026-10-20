@@ -1,6 +1,6 @@
 # 来源与学习借鉴
 
-核验日期：2026-10-15。网上面试资料仅用于收集主题与追问方向，回答按本项目代码重新组织；技术行为以官方文档和指定版本源码为依据。没有逐字搬运整篇文章，也不把公开题目当某公司真实面试频率统计。
+首版核验日期：2026-10-15。2026-10-20 复核事务回调、代理、集合与确认机制，并新增 S31-S47，供口语问答与 Java 基础文档使用。网上面试资料仅用于收集主题与追问方向，回答按本项目代码重新组织；技术行为以官方文档和指定版本源码为依据。没有逐字搬运整篇文章，也不把公开题目当某公司真实面试频率统计。
 
 项目依赖以 [pom.xml](../../pom.xml) 为准。部分官方参考链接默认展示最新版本，本手册只借用适用于项目的通用机制；Spring 7、Redis 8 等新增 API 不代表本项目已支持。源码入口比外部文章中的假设优先。
 
@@ -155,6 +155,95 @@
 ### S30 Spring Boot 3.3 自动配置
 
 [Auto-configuration](https://docs.spring.io/spring-boot/3.3/reference/using/auto-configuration.html)。用于自动配置条件、已有 Bean 与默认配置的关系。
+
+## 口语问答补充来源
+
+以下条目于 2026-10-20 核对。J 编号对应 [Java 基础问答](java-interview.md)；这些是官方机制说明，不是项目实测证据。
+
+<a id="s31"></a>
+### S31 Java 21 Object
+
+[Object API](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html)。J01-J02 的 equals/hashCode 约定，J22 的 wait 与监视器语义；finalize 已弃用并计划移除。
+
+<a id="s32"></a>
+### S32 Java 21 类型、值与变量
+
+[JLS Chapter 4](https://docs.oracle.com/javase/specs/jls/se21/html/jls-4.html)。J04-J05、J08 的引用值、final 与泛型擦除；对象引用和对象内容要分别理解。
+
+<a id="s33"></a>
+### S33 Java 21 Stream
+
+[Stream API](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/stream/Stream.html)。J14-J15、Q063 的惰性求值、单次使用、非干扰要求与 toList 不可修改约定。
+
+<a id="s34"></a>
+### S34 Java 21 ArrayList
+
+[ArrayList API](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/ArrayList.html)。J10 的数组型列表、容量和增删访问成本。
+
+<a id="s35"></a>
+### S35 Java 21 ConcurrentHashMap
+
+[ConcurrentHashMap API](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/ConcurrentHashMap.html)。J13 的并发集合、条件操作、聚合统计和可变 value 的边界。
+
+<a id="s36"></a>
+### S36 Java 21 内存模型
+
+[JLS Chapter 17: Threads and Locks](https://docs.oracle.com/javase/specs/jls/se21/html/jls-17.html)。J18-J20、Q062 的可见性、同步和 happens-before，不把时间先后当作同步关系。
+
+<a id="s37"></a>
+### S37 Java 21 ReentrantLock
+
+[ReentrantLock API](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/locks/ReentrantLock.html)。J20 的可重入、公平性、可中断获取和显式释放；与远程 Redisson 锁区分。
+
+<a id="s38"></a>
+### S38 Java 21 ThreadPoolExecutor
+
+[ThreadPoolExecutor API](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/ThreadPoolExecutor.html)。J24 的线程创建、入队、扩容和拒绝顺序，不把无界队列理解成没有容量问题。
+
+<a id="s39"></a>
+### S39 JVM 运行时结构
+
+[JVMS Chapter 2](https://docs.oracle.com/javase/specs/jvms/se21/html/jvms-2.html)。J27 的堆、栈等运行时数据区；HotSpot 具体实现不能直接等同于规范中的全部概念。
+
+<a id="s40"></a>
+### S40 Java 21 ClassLoader
+
+[ClassLoader API](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/ClassLoader.html)。J31 的加载器、委派和类身份，结合实际依赖错误排查。
+
+<a id="s41"></a>
+### S41 Java 21 G1 与回收调优
+
+[G1 Garbage Collector](https://docs.oracle.com/en/java/javase/21/gctuning/garbage-first-g1-garbage-collector1.html)、[GC Tuning Guide](https://docs.oracle.com/en/java/javase/21/gctuning/index.html)。J28-J30 的回收与暂停；实际 GC 仍须检查运行参数，不能仅凭 JDK 版本猜测。
+
+<a id="s42"></a>
+### S42 Java 21 虚拟线程
+
+[JEP 444](https://openjdk.org/jeps/444)。J26 的等待型负载、每任务虚拟线程和下游容量约束；项目未启用或压测该能力。
+
+<a id="s43"></a>
+### S43 Spring Bean 与依赖注入
+
+[Bean Overview](https://docs.spring.io/spring-framework/reference/core/beans/definition.html)、[Dependency Injection](https://docs.spring.io/spring-framework/reference/6.2/core/beans/dependencies/factory-collaborators.html)。J33-J35 的职责、初始化与构造器循环依赖；这里只引用项目 6.1 同样适用的基础行为，不宣称项目升级到参考页的版本。
+
+<a id="s44"></a>
+### S44 MyBatis 参数绑定
+
+[Mapper XML Files](https://mybatis.org/mybatis-3/sqlmap-xml.html)。J40 的参数绑定与文本拼接；标识符和排序结构不能当普通值参数处理。
+
+<a id="s45"></a>
+### S45 Spring AMQP 容器确认
+
+[Message Listener Container Configuration](https://docs.spring.io/spring-amqp/reference/amqp/containerAttributes.html)。Q042 区分容器 AUTO、MANUAL 与 NONE；默认 AUTO 不等于 RabbitMQ 协议层不等待处理的自动确认。本文不依赖新版新增容器属性。
+
+<a id="s46"></a>
+### S46 HTTP 方法语义
+
+[RFC 9110, Section 9.2.2](https://www.rfc-editor.org/rfc/rfc9110.html#section-9.2.2)。J44 的幂等效果与响应区别；HTTP 方法名称不会自动实现项目的业务去重协议。
+
+<a id="s47"></a>
+### S47 Java 21 语句与资源关闭
+
+[JLS Chapter 14, try-with-resources](https://docs.oracle.com/javase/specs/jls/se21/html/jls-14.html#jls-14.20.3)。J07 的结构化资源关闭和异常路径，不把正常控制流规则当作进程崩溃保障。
 
 ## 网上面试主题采集
 

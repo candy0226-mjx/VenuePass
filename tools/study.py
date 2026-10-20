@@ -97,7 +97,8 @@ class StudyStore:
         lines = [
             "# VenuePass 面试题集", "",
             "本文件由 `python tools/study.py export` 生成。请编辑 questions.json 或使用维护工具。", "",
-            "题目按源码与官方原理重新组织，网上主题来源见 sources.md。优先级为学习顺序，不代表真实面试概率。", "",
+            "按“面试官提问 → 我回答 → 两轮追问与回答”阅读。回答是口语示范，请结合自己的理解和真实经历表达，不要把改进方案说成已实现。", "",
+            "源码核对与修订日期见 questions.json 的 updated_at；原理来源见 sources.md。优先级为学习顺序，不代表真实面试概率。", "",
             f"共 {len(cards)} 题。状态：todo 未学 / learning 学习中 / mastered 能脱稿讲解。", "",
             "[学习目录](README.md) · [引用来源](sources.md) · [当前实现边界](12-implementation-boundaries.md)", "",
             "| 编号 | 主题 | 优先级 | 状态 | 题目 |", "|---|---|---|---|---|",
@@ -113,9 +114,11 @@ class StudyStore:
                 "", f'<a id="{card["id"].lower()}"></a>',
                 f'## {card["id"]} {card["question"]}', "",
                 f'主题：{card["topic"]}；优先级：{card["priority"]}；状态：{card["status"]}。', "",
-                "**参考回答**", "", card["answer"], "", "**继续追问**", "",
+                f'**面试官：** {card["question"]}', "",
+                "**我：**", "", card["answer"], "",
             ])
-            lines.extend(f"- {item}" for item in card["followups"])
+            for index, item in enumerate(card["followups"], start=1):
+                lines.extend([f"**面试官追问 {index}：** {item}", ""])
             if card["code_refs"]:
                 lines.extend(["", "**源码入口**", ""])
                 for reference in card["code_refs"]:
